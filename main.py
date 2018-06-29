@@ -22,8 +22,8 @@ def main():
     # Train + Test + Boundary Loop
     # -----------------------------------------
     boundaries = []
-    num_figures = 5
-    num_boundaries = 4
+    num_figures = 3
+    num_boundaries = 3
 
     # Get Optimal Boundary + pts
     optimal_boundary_pts, _ = optimal_boundary(plot_flag=False)
