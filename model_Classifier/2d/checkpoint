@@ -1,2 +1,2 @@
-model_checkpoint_path: "trained_model"
-all_model_checkpoint_paths: "trained_model"
+model_checkpoint_path: "/home/justin/Github/RobustClassifier/model_Classifier/2d/trained_model"
+all_model_checkpoint_paths: "/home/justin/Github/RobustClassifier/model_Classifier/2d/trained_model"

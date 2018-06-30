@@ -1,4 +1,3 @@
-from classifiers import *
 from Classifier import *
 from optimal_boundary import optimal_boundary
 
@@ -22,8 +21,8 @@ def main():
     # Train + Test + Boundary Loop
     # -----------------------------------------
     boundaries = []
-    num_figures = 3
-    num_boundaries = 3
+    num_figures = 2
+    num_boundaries = 1
 
     # Get Optimal Boundary + pts
     optimal_boundary_pts, _ = optimal_boundary(plot_flag=False)
@@ -51,7 +50,7 @@ def main():
             my_classifier.eval_model(sess)
 
             # Classifier Decision Boundary
-            decision_boundary, fig = my_classifier.decision_boundary(sess, axs[i], plot_flag=False, contourf_flag=False)
+            decision_boundary, fig = my_classifier.decision_boundary(sess, axs[i], plot_flag=False, contourf_flag=False, supress_flag= False)
 
             x,y = decision_boundary.T
             # axs[i].plot(x,y)

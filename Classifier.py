@@ -3,6 +3,7 @@ import utils
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
+from sklearn.model_selection import train_test_split
 
 ########################################################################################3
 ####################            Simple Classifier            ###########################3
@@ -40,6 +41,17 @@ class Classifier_simple(object):
         self.train_epoch, self.data, self.test_epoch = utils.load_dataset(batch_size, self.load_func,False, num_samples, noise, random_state)
         self.X_train, self.y_train, self.X_test, self.y_test = self.data
 
+    def set_adv_dataset(self, batch_size, random_state, X_adv, y_adv):
+        # Append adversarial points
+        X_adv_train, X_adv_test, y_adv_train, y_adv_test = train_test_split(X_adv, y_adv, test_size=.4, random_state=random_state)
+        self.X_train = np.vstack([self.X_train, X_adv_train])
+        self.y_train = np.hstack([self.y_train, y_adv_train])
+        self.X_test = np.vstack([self.X_test, X_adv_test])
+        self.y_test = np.hstack([self.y_test, y_adv_test])
+        self.data = (self.X_train, self.y_train, self.X_test, self.y_test)
+
+        # Create Generator functions
+        self.train_epoch, self.data, self.test_epoch = utils.adv_load_dataset(batch_size, self.data)
 
     def train_model(self, sess, x, y, train_epoch, train_op, num_epochs):
         train_gen = utils.batch_gen(train_epoch, True, y.shape[1], num_epochs)
@@ -60,14 +72,15 @@ class Classifier_simple(object):
                                 tf.argmax(y, 1))
         return tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
-    def train(self, sess, num_epochs, learning_rate):
+    def train(self, sess, num_epochs, learning_rate, retrain = False):
 
         train_op = self.get_train_op(self.logits, self.y, learning_rate)
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
 
-        init = tf.global_variables_initializer()
-        sess.run(init)
+        if(not retrain):
+            init = tf.global_variables_initializer()
+            sess.run(init)
 
         print('training model')
         self.train_model(sess, self.x, self.y, self.train_epoch, train_op, num_epochs)
@@ -88,7 +101,7 @@ class Classifier_simple(object):
 
         return normal_accuracy
 
-    def decision_boundary(self,sess, ax, plot_flag=False,contourf_flag=True):
+    def decision_boundary(self,sess, ax, plot_flag=False,contourf_flag=True,supress_flag = False):
         cm = plt.cm.RdBu
         cm_bright = ListedColormap(['#FF0000', '#0000FF'])
 
@@ -128,6 +141,8 @@ class Classifier_simple(object):
 
         if(plot_flag):
             plt.show()
+        if(supress_flag):
+            plt.close()
 
         paths = contour.collections[0].get_paths()[0]
         decision_boundary = paths.vertices

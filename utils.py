@@ -113,6 +113,28 @@ def MNIST_load():
     return (tr_image, tr_label, ts_image, ts_label)
 
 
+def adv_load_dataset(batch_size, data):
+    train_data, train_target, test_data, test_target = data
+    test_size = batch_size
+
+    def train_epoch():
+        tot_len = train_data.shape[0]
+        i = np.random.randint(0, batch_size)
+        while (i + batch_size < tot_len):
+            yield (np.copy(train_data[i:i + batch_size, :]), np.copy(train_target[i:i + batch_size]))
+            i = i + batch_size
+
+    def test_epoch():
+        tot_len = test_data.shape[0]
+        i = 0
+        # i = np.random.randint(0, test_size)
+        while (i + test_size < tot_len):
+            yield (np.copy(test_data[i:i + test_size, :]), np.copy(test_target[i:i + test_size]))
+            i = i + batch_size
+
+    return train_epoch, data, test_epoch
+
+
 def moon_load(num_samples=700, noise=0.05, random_state=0):
     data = make_moons(noise=noise, random_state=random_state, n_samples=num_samples)
 
@@ -378,3 +400,8 @@ def subplot_values(num_figures):
     factor2 = int(num_figures/factor1)
 
     return factor1, factor2
+
+def make_one_hot(coll):
+    onehot = np.zeros((coll.shape[0], coll.max() + 1))
+    onehot[np.arange(coll.shape[0]), coll] = 1
+    return onehot
