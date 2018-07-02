@@ -23,6 +23,9 @@ class Classifier_simple(object):
         self.classifier_saver = tf.train.Saver(var_list=self.class_vars, max_to_keep=1)
         self.set_load_func()
 
+        self.X_adv = []
+        self.y_adv = []
+
     def build_classifier(self, x, reuse=False):
         with tf.variable_scope("Classifier", reuse=reuse):
             dense1 = tf.layers.dense(inputs=x, units=10, activation=tf.nn.relu)
@@ -40,18 +43,29 @@ class Classifier_simple(object):
     def set_dataset(self,batch_size,num_samples,noise,random_state):
         self.train_epoch, self.data, self.test_epoch = utils.load_dataset(batch_size, self.load_func,False, num_samples, noise, random_state)
         self.X_train, self.y_train, self.X_test, self.y_test = self.data
+        self.save_training_pts()
 
-    def set_adv_dataset(self, batch_size, random_state, X_adv, y_adv):
-        # Append adversarial points
-        X_adv_train, X_adv_test, y_adv_train, y_adv_test = train_test_split(X_adv, y_adv, test_size=.4, random_state=random_state)
-        self.X_train = np.vstack([self.X_train, X_adv_train])
-        self.y_train = np.hstack([self.y_train, y_adv_train])
-        self.X_test = np.vstack([self.X_test, X_adv_test])
-        self.y_test = np.hstack([self.y_test, y_adv_test])
+    def save_training_pts(self):
+        self.original_X_train = self.X_train
+        self.original_y_train = self.y_train
+
+    def set_adv_dataset(self, batch_size, X_adv, y_adv):
+
+        # Save adversarial points
+        if(len(self.X_adv) == 0 or len(self.y_adv) == 0):
+            self.X_adv = X_adv
+            self.y_adv = y_adv
+        else:
+            self.X_adv = np.vstack([self.X_adv, X_adv])
+            self.y_adv = np.hstack([self.y_adv, y_adv])
+
+        # Append adversarial points to training data
+        self.X_train = np.vstack([self.X_train, X_adv])
+        self.y_train = np.hstack([self.y_train, y_adv])
         self.data = (self.X_train, self.y_train, self.X_test, self.y_test)
 
-        # Create Generator functions
-        self.train_epoch, self.data, self.test_epoch = utils.adv_load_dataset(batch_size, self.data)
+        # Create Generator functions (for training)
+        self.train_epoch = utils.adv_load_dataset(batch_size, self.data)
 
     def train_model(self, sess, x, y, train_epoch, train_op, num_epochs):
         train_gen = utils.batch_gen(train_epoch, True, y.shape[1], num_epochs)
@@ -101,7 +115,12 @@ class Classifier_simple(object):
 
         return normal_accuracy
 
-    def decision_boundary(self,sess, ax, plot_flag=False,contourf_flag=True,supress_flag = False):
+    def decision_boundary(self,sess, ax=None, plot_flag=False,contourf_flag=True,supress_flag = False):
+        # Check for figure
+        if(ax == None):
+            ax = plt.axes()
+
+        # Color Maps (red to blue)
         cm = plt.cm.RdBu
         cm_bright = ListedColormap(['#FF0000', '#0000FF'])
 
@@ -147,4 +166,4 @@ class Classifier_simple(object):
         paths = contour.collections[0].get_paths()[0]
         decision_boundary = paths.vertices
 
-        return decision_boundary, ax
+        return decision_boundary

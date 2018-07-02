@@ -18,7 +18,7 @@ def main():
     my_classifier = Classifier_simple(x_size,y_size,model_directory)
 
     # -----------------------------------------------------------------
-    # Train + Test + Boundary Loop
+    # Train + Test + Boundary Loop (loops through noise values)
     # -----------------------------------------
     boundaries = []
     num_figures = 2
@@ -50,7 +50,7 @@ def main():
             my_classifier.eval_model(sess)
 
             # Classifier Decision Boundary
-            decision_boundary, fig = my_classifier.decision_boundary(sess, axs[i], plot_flag=False, contourf_flag=False, supress_flag= False)
+            decision_boundary = my_classifier.decision_boundary(sess, axs[i], plot_flag=False, contourf_flag=False, supress_flag=False)
 
             x,y = decision_boundary.T
             # axs[i].plot(x,y)

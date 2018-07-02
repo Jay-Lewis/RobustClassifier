@@ -115,7 +115,6 @@ def MNIST_load():
 
 def adv_load_dataset(batch_size, data):
     train_data, train_target, test_data, test_target = data
-    test_size = batch_size
 
     def train_epoch():
         tot_len = train_data.shape[0]
@@ -124,15 +123,7 @@ def adv_load_dataset(batch_size, data):
             yield (np.copy(train_data[i:i + batch_size, :]), np.copy(train_target[i:i + batch_size]))
             i = i + batch_size
 
-    def test_epoch():
-        tot_len = test_data.shape[0]
-        i = 0
-        # i = np.random.randint(0, test_size)
-        while (i + test_size < tot_len):
-            yield (np.copy(test_data[i:i + test_size, :]), np.copy(test_target[i:i + test_size]))
-            i = i + batch_size
-
-    return train_epoch, data, test_epoch
+    return train_epoch
 
 
 def moon_load(num_samples=700, noise=0.05, random_state=0):
