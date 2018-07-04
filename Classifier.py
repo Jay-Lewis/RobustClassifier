@@ -138,7 +138,7 @@ class Classifier_simple(object):
         Z = utils.softmax(Z)
         Z = np.asarray([pred[1] for pred in Z])
 
-        # Put the result into a color plot
+        # Put the result into a contour plot
         shape = np.shape(xx)
         Z = Z.reshape(shape)
         num_contours = 1
@@ -147,21 +147,22 @@ class Classifier_simple(object):
         else:
             contour = ax.contour(xx, yy, Z, num_contours, cmap=cm, alpha=.8)
 
-        # Plot training points
-        ax.scatter(self.X_train[:, 0], self.X_train[:, 1], c=self.y_train, cmap=cm_bright,
-                   edgecolors='k')
-        # and testing points
-        ax.scatter(self.X_test[:, 0], self.X_test[:, 1], c=self.y_test, cmap=cm_bright, alpha=0.6,
-                   edgecolors='k')
-        ax.set_xlim(xx.min(), xx.max())
-        ax.set_ylim(yy.min(), yy.max())
-        ax.set_xticks(())
-        ax.set_yticks(())
-
         if(plot_flag):
+            # Plot training points
+            ax.scatter(self.X_train[:, 0], self.X_train[:, 1], c=self.y_train, cmap=cm_bright,
+                       edgecolors='k')
+            # and testing points
+            ax.scatter(self.X_test[:, 0], self.X_test[:, 1], c=self.y_test, cmap=cm_bright, alpha=0.6,
+                       edgecolors='k')
+            ax.set_xlim(xx.min(), xx.max())
+            ax.set_ylim(yy.min(), yy.max())
+            ax.set_xticks(())
+            ax.set_yticks(())
+
             plt.show()
+
         if(supress_flag):
-            plt.close()
+            plt.cla()
 
         paths = contour.collections[0].get_paths()[0]
         decision_boundary = paths.vertices

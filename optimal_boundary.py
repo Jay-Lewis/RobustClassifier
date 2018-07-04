@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.datasets import make_moons, make_classification
 from sklearn.neighbors import KNeighborsClassifier
 
-def optimal_boundary(plot_flag):
+def optimal_boundary(plot_flag, power, metric):
 
     #-----------------------------------------------------------------
     # Find optimal decision boundary (approximately 1-NN)
@@ -22,7 +22,7 @@ def optimal_boundary(plot_flag):
     names = ["Nearest Neighbors"]
 
     classifiers = [
-        KNeighborsClassifier(kneighbors),]
+        KNeighborsClassifier(kneighbors, p=power, metric=metric),]
 
     X, y = make_classification(n_features=2, n_redundant=0, n_informative=2,
                                random_state=1, n_clusters_per_class=1)
